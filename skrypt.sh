@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function display_help {
-    echo "Użycie: projekt.sh [opcja]"
+    echo "Użycie: skrypt.sh [opcja]"
     echo "Opcje:"
     echo "  --date, -d     Wyświetla dzisiejszą datę"
     echo "  --logs, -l     Tworzy automatycznie 100 plików logx.txt"
