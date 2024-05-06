@@ -1,23 +1,22 @@
 #!/bin/bash
 
-# Funkcja wyświetlająca pomoc
 function display_help {
-    echo "Użycie: skrypt.sh [opcja]"
+    echo "Użycie: projekt.sh [opcja]"
     echo "Opcje:"
-    echo "  --date         Wyświetla dzisiejszą datę"
-    echo "  --logs         Tworzy automatycznie 100 plików logx.txt"
+    echo "  --date, -d     Wyświetla dzisiejszą datę"
+    echo "  --logs, -l     Tworzy automatycznie 100 plików logx.txt"
     echo "  --logs <n>     Tworzy automatycznie <n> plików logx.txt"
-    echo "  --help         Wyświetla pomoc"
+    echo "  --help, -h     Wyświetla pomoc"
+    echo "  --init, -i     Klonuje całe repozytorium do katalogu w którym został uruchomiony oraz ustawia ścieżkę w zmiennej środowiskowej PATH"
+    echo "  --error <n>, -e <n>     Tworzy automatycznie <n> plików errorx.txt"
 }
 
-# Funkcja tworząca plik .gitignore ignorujący pliki z ciągiem "log"
 function create_gitignore {
     echo "*log*" > .gitignore
 }
 
-# Funkcja tworząca pliki log
 function create_logs {
-    local num_files=${1:-100}  # Domyślnie 100 plików, lub wartość przekazana jako argument
+    local num_files=${1:-100} 
     local script_name=$(basename "$0")
     local date=$(date +"%Y-%m-%d")
 
@@ -28,12 +27,23 @@ function create_logs {
     done
 }
 
-# Obsługa argumentów
+
+function create_errors {
+    local num_files=${1:-100} 
+    local script_name=$(basename "$0")
+
+    for ((i=1; i<=$num_files; i++)); do
+        echo "Błąd numer $i" > "error$i.txt"
+        echo "Nazwa skryptu: $script_name" >> "error$i.txt"
+        echo "Data: $(date +"%Y-%m-%d")" >> "error$i.txt"
+    done
+}
+
 case "$1" in
-    --date)
+    --date|-d)
         date
         ;;
-    --logs)
+    --logs|-l)
         if [ -z "$2" ]; then
             create_logs
         else
@@ -44,8 +54,23 @@ case "$1" in
             fi
         fi
         ;;
-    --help)
+    --help|-h)
         display_help
+        ;;
+    --init|-i)
+        git clone <adres_repozytorium> .
+        export PATH=$PATH:$(pwd)
+        ;;
+    --error|-e)
+        if [ -z "$2" ]; then
+            create_errors
+        else
+            if [[ $2 =~ ^[0-9]+$ ]]; then
+                create_errors "$2"
+            else
+                echo "Błąd: Argument musi być liczbą całkowitą."
+            fi
+        fi
         ;;
     *)
         echo "Błąd: Nieznana opcja."
@@ -54,12 +79,6 @@ case "$1" in
         ;;
 esac
 
-# Utworzenie pliku .gitignore
 create_gitignore
 
-# Zmergowanie zmian do gałęzi głównej i utworzenie tagu v1.0
-git add .
-git commit -m "Automatyczne zapisywanie zmian przez skrypt"
-git checkout master
-git merge taskBranch
-git tag v1.0
+
